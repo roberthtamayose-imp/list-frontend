@@ -3,13 +3,19 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://list-backend-sjkn.on
 interface ApiResponse<T> {
   data?: T
   error?: string
+  unauthorized?: boolean
 }
 
 class ApiClient {
   private token: string | null = null
+  private onUnauthorized: (() => void) | null = null
 
   setToken(token: string | null) {
     this.token = token
+  }
+
+  setOnUnauthorized(callback: () => void) {
+    this.onUnauthorized = callback
   }
 
   private async request<T>(
@@ -33,6 +39,14 @@ class ApiClient {
       })
 
       if (!response.ok) {
+        // Handle 401 - token expired or invalid
+        if (response.status === 401) {
+          if (this.onUnauthorized) {
+            this.onUnauthorized()
+          }
+          return { error: 'Sessão expirada. Faça login novamente.', unauthorized: true }
+        }
+        
         const errorData = await response.json().catch(() => ({}))
         return { error: errorData.message || `Erro ${response.status}` }
       }
