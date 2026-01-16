@@ -86,7 +86,16 @@ body {
 
 /* Input styles */
 .input-field {
-  @apply w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-primary-500/50 focus:bg-white/10 transition-all duration-300;
+  @apply w-full py-3 pr-4 pl-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-primary-500/50 focus:bg-white/10 transition-all duration-300;
+}
+
+/* Override padding when using icon classes */
+.input-field.pl-12 {
+  padding-left: 3rem;
+}
+
+.input-field.pr-12 {
+  padding-right: 3rem;
 }
 
 /* Animated background */
