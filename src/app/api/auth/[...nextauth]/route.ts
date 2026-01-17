@@ -84,40 +84,42 @@ const authOptions: NextAuthOptions = {
       
       // Handle Google OAuth - create user in backend
       if (account?.provider === 'google' && user) {
+        // Use a consistent password based on Google ID (not Date.now() which changes!)
+        const googlePassword = `google_oauth_${user.id}`
+        
         try {
-          // Try to register or login the Google user
-          const response = await fetch(`${API_URL}/auth/register`, {
+          // First try to login (user might already exist)
+          const loginResponse = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               email: user.email,
-              password: `google_${user.id}_${Date.now()}`, // Generate a pseudo password
-              name: user.name,
+              password: googlePassword,
             }),
           })
-
-          if (response.ok) {
-            const data = await response.json()
+          
+          if (loginResponse.ok) {
+            const data = await loginResponse.json()
             token.id = data.user.id
             token.accessToken = data.access_token
           } else {
-            // User might already exist, try to get their info
-            const loginResponse = await fetch(`${API_URL}/auth/login`, {
+            // User doesn't exist, try to register
+            const registerResponse = await fetch(`${API_URL}/auth/register`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 email: user.email,
-                password: `google_${user.id}_${Date.now()}`, // This will fail for existing users
+                password: googlePassword,
+                name: user.name,
               }),
             })
-            
-            if (!loginResponse.ok) {
-              console.log('Google user exists but password mismatch - using Google ID')
-              // Keep using Google's user ID for now
-            } else {
-              const data = await loginResponse.json()
+
+            if (registerResponse.ok) {
+              const data = await registerResponse.json()
               token.id = data.user.id
               token.accessToken = data.access_token
+            } else {
+              console.error('Failed to register/login Google user')
             }
           }
         } catch (error) {
