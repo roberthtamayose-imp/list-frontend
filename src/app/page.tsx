@@ -164,7 +164,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="py-8 border-t border-white/5">
         <div className="max-w-6xl mx-auto px-4 text-center text-gray-500 text-sm">
-          <p>© 2024 ListaCompras. Feito com ❤️ para simplificar suas compras.</p>
+          <p>© 2026 ListaCompras. Feito com ❤️ para simplificar suas compras.</p>
         </div>
       </footer>
     </main>
